@@ -6,7 +6,7 @@ Shader "Universal Render Pipeline/Complex Lit"
     Properties
     {
         // Specular vs Metallic workflow
-        [HideInInspector] _WorkflowMode("WorkflowMode", Float) = 1.0
+        [HideInInspector] _WorkflowMode("WorkflowMode", Float) = 0
 
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
         [MainColor] _BaseColor("Color", Color) = (1,1,1,1)
