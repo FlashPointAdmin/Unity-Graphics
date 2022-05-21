@@ -1,0 +1,113 @@
+project:
+  name: VFX_URP
+  folder: VisualEffectGraph_URP
+test_platforms:
+  - type: Standalone
+    utr_flags:
+      - [OSX_Metal]: --timeout=2400
+    utr_flags_build:
+    - [all]: --timeout=3000
+  - type: playmode
+#  - type: editmode
+
+platforms:
+  - name: Win
+    apis:
+      - name: DX11
+      # - name: DX12
+      - name: Vulkan
+    build_configs:
+      - name: mono
+    color_spaces:
+      - Linear
+    agents_project:
+      default:
+        type: Unity::VM::GPU
+        image: sdet/gamecode_win10:stable
+        flavor: b1.large
+      editmode:
+        type: Unity::VM
+        image: sdet/gamecode_win10:stable
+        flavor: b1.large
+      playmode:
+        type: Unity::VM::GPU
+        image: sdet/gamecode_win10:stable
+        flavor: b1.xlarge
+        model: rtx2080
+      standalone:
+        type: Unity::VM::GPU
+        image: sdet/gamecode_win10:stable
+        flavor: b1.large
+      standalone_build:
+        type: Unity::VM
+        image: sdet/gamecode_win10:stable
+        flavor: b1.xlarge
+  - name: OSX
+    apis:
+      - name: Metal
+        exclude_test_platforms:
+          - name: playmode_XR
+      - name: OpenGLCore
+        exclude_test_platforms:
+          - name: playmode_XR
+          - name: Standalone
+    build_configs:
+      - name: mono
+    color_spaces:
+      - Linear
+  - name: Linux
+    apis:
+      - name: OpenGLCore
+        exclude_test_platforms:
+          - name: Standalone
+          - name: playmode_XR
+      - name: Vulkan
+        exclude_test_platforms:
+          - name: playmode_XR
+    build_configs:
+      - name: mono
+    color_spaces:
+      - Linear
+  - name: iPhone
+    apis:
+      - name: Metal
+        exclude_test_platforms:
+          - name: playmode
+          - name: editmode
+          - name: playmode_XR
+    build_configs:
+      - name: il2cpp
+    color_spaces:
+      - Linear
+#  - name: Android
+#    apis:
+#      - name: Vulkan
+#      - name: OpenGLES3
+#    build_configs:
+#      - name: mono
+#    color_spaces:
+#      - Linear
+
+jobs:
+  - name: PR <PROJECT_NAME>
+    dependencies:
+      - platform: Win
+        api: DX11
+        build_config: mono
+        color_space: Linear
+        test_platforms:
+            - Standalone
+  - name: Extra <PROJECT_NAME>
+    dependencies:
+      - project: VFX_URP
+        pr: true
+      - platform: Win
+        api: DX11
+        build_config: mono
+        color_space: Linear
+        test_platforms:
+            - playmode
+  - name: <PROJECT_NAME>
+    dependencies:
+      - <PROJECT_ALL_YML_FILE>#PR_<PROJECT_NAME>_<TRACK>
+      - <PROJECT_ALL_YML_FILE>#Extra_<PROJECT_NAME>_<TRACK>
